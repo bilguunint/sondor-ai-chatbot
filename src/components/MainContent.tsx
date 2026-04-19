@@ -28,6 +28,7 @@ import {
   Zap,
   Crown,
   Building2,
+  Menu,
 } from "lucide-react";
 
 import { useTheme } from "./ThemeProvider";
@@ -84,7 +85,7 @@ const suggestions = [
   },
 ];
 
-export default function MainContent() {
+export default function MainContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const [view, setView] = useState<"home" | "chat">("home");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -215,7 +216,11 @@ export default function MainContent() {
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
       {/* Top Bar */}
-      <header className="flex items-center justify-between px-6 py-3 shrink-0 relative z-10">
+      <header className="flex items-center justify-between px-4 md:px-6 py-3 shrink-0 relative z-10">
+        <div className="flex items-center gap-2">
+          <button onClick={onMobileMenuOpen} className="md:hidden p-2 rounded-lg hover:bg-hover-bg text-text-muted">
+            <Menu className="w-5 h-5" />
+          </button>
         <div className="relative" ref={modelDropdownRef}>
           <button
             onClick={() => setShowModelDropdown(!showModelDropdown)}
@@ -228,7 +233,7 @@ export default function MainContent() {
           </button>
 
           {showModelDropdown && (
-            <div className="absolute top-full left-0 mt-1.5 w-[280px] rounded-xl border border-border-light bg-card shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute top-full left-0 mt-1.5 w-[260px] md:w-[280px] rounded-xl border border-border-light bg-card shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="px-3 py-2 border-b border-border-light">
                 <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Model</span>
               </div>
@@ -263,20 +268,21 @@ export default function MainContent() {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <button className="p-2 rounded-lg hover:bg-hover-bg text-text-muted">
+        </div>
+        <div className="flex items-center gap-1 md:gap-3">
+          <button className="hidden sm:flex p-2 rounded-lg hover:bg-hover-bg text-text-muted">
             <MoreHorizontal className="w-4 h-4" />
           </button>
-          <button className="p-2 rounded-lg hover:bg-hover-bg text-text-muted">
+          <button className="hidden sm:flex p-2 rounded-lg hover:bg-hover-bg text-text-muted">
             <Link2 className="w-4 h-4" />
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-hover-bg text-text-secondary text-[13px]">
+          <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-hover-bg text-text-secondary text-[13px]">
             <Download className="w-4 h-4" />
-            Export chat
+            <span>Export chat</span>
           </button>
           <button
             onClick={() => setShowPricing(true)}
-            className="px-4 py-1.5 rounded-lg bg-text-primary text-background text-[13px] font-medium hover:opacity-90 transition-colors cursor-pointer"
+            className="px-3 sm:px-4 py-1.5 rounded-lg bg-text-primary text-background text-[12px] sm:text-[13px] font-medium hover:opacity-90 transition-colors cursor-pointer"
           >
             Upgrade
           </button>
@@ -286,7 +292,7 @@ export default function MainContent() {
       {/* ====== HOME VIEW ====== */}
       {view === "home" && (
         <div
-          className={`flex-1 flex flex-col items-center justify-center px-6 -mt-8 transition-all duration-400 ${
+          className={`flex-1 flex flex-col items-center justify-center px-4 sm:px-6 -mt-4 sm:-mt-8 transition-all duration-400 ${
             isTransitioning
               ? "opacity-0 translate-y-8 scale-95"
               : "opacity-100 translate-y-0 scale-100"
@@ -294,17 +300,17 @@ export default function MainContent() {
         >
           {/* Avatar / Orb */}
           <div className="relative mb-6">
-            <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary-200 via-primary-300 to-primary-400 opacity-60 blur-sm absolute inset-0" />
-            <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-primary-100 via-primary-200 to-primary-400 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 opacity-80" />
+            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-200 via-primary-300 to-primary-400 opacity-60 blur-sm absolute inset-0" />
+            <div className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-100 via-primary-200 to-primary-400 flex items-center justify-center">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 opacity-80" />
             </div>
           </div>
 
           {/* Greeting */}
-          <h2 className="text-[22px] font-normal bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent mb-1">
+          <h2 className="text-[18px] sm:text-[22px] font-normal bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent mb-1">
             Hello, Bilguun
           </h2>
-          <h1 className="text-[28px] font-bold text-text-primary mb-8">
+          <h1 className="text-[22px] sm:text-[28px] font-bold text-text-primary mb-8">
             How can I assist you today?
           </h1>
 
@@ -322,7 +328,7 @@ export default function MainContent() {
               />
               <div className="flex items-center justify-between mt-3 pt-2 border-t border-border-light">
                 <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary-200 bg-primary-50 text-primary-600 text-[12px] font-medium hover:bg-primary-100 transition-colors">
+                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary-200 bg-primary-50 text-primary-600 text-[11px] font-medium hover:bg-primary-100 transition-colors whitespace-nowrap">
                     <Sparkles className="w-3.5 h-3.5" />
                     Deeper Research
                   </button>
@@ -370,7 +376,7 @@ export default function MainContent() {
           </div>
 
           {/* Suggestion Cards */}
-          <div className="w-full max-w-[560px] grid grid-cols-3 gap-3 mt-2">
+          <div className="w-full max-w-[560px] grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
             {suggestions.map(({ icon: Icon, title, description }) => (
               <button
                 key={title}
@@ -394,7 +400,7 @@ export default function MainContent() {
       {view === "chat" && (
         <div className="flex-1 flex flex-col overflow-hidden animate-chat-enter">
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
             <div className="max-w-[720px] mx-auto space-y-6">
               {messages.map((msg) => (
                 <div key={msg.id}>
@@ -451,7 +457,7 @@ export default function MainContent() {
           </div>
 
           {/* Bottom Chat Input */}
-          <div className="shrink-0 px-6 py-4 border-t border-border-light bg-background">
+          <div className="shrink-0 px-4 md:px-6 py-4 border-t border-border-light bg-background">
             <div className="max-w-[720px] mx-auto">
               <div className="rounded-2xl border border-border-light bg-card shadow-sm px-4 py-3">
                 <input
@@ -496,7 +502,7 @@ export default function MainContent() {
       {/* Footer (home only) */}
       {view === "home" && (
         <footer
-          className={`flex items-center justify-between px-6 py-3 shrink-0 transition-opacity duration-300 ${
+          className={`flex items-center justify-between px-4 md:px-6 py-3 shrink-0 transition-opacity duration-300 ${
             isTransitioning ? "opacity-0" : "opacity-100"
           }`}
         >
@@ -588,11 +594,11 @@ function PricingModal({ onClose }: { onClose: () => void }) {
       onMouseDown={onClose}
     >
       <div
-        className="bg-card rounded-2xl shadow-2xl w-full max-w-[780px] mx-4 animate-slide-up"
+        className="bg-card rounded-2xl shadow-2xl w-full max-w-[780px] mx-4 max-h-[90vh] overflow-y-auto animate-slide-up"
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-6 pb-4">
           <div>
             <h2 className="text-[20px] font-bold text-text-primary">Upgrade your plan</h2>
             <p className="text-[13px] text-text-secondary mt-0.5">Choose the plan that works best for you</p>
@@ -606,7 +612,7 @@ function PricingModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Plans */}
-        <div className="grid grid-cols-3 gap-4 px-6 pb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 sm:px-6 pb-6">
           {plans.map((plan) => (
             <div
               key={plan.name}

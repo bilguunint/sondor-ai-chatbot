@@ -8,21 +8,27 @@ import {
   Plus,
   Sparkles,
   MessageSquare,
+  Menu,
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
-export default function ThemeContent() {
+export default function ThemeContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const { mode, setMode, resolvedMode, primaryKey, setPrimaryKey, primary, colors } =
     useTheme();
 
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 px-8 pt-6 pb-4 border-b border-border-light">
+      <header className="shrink-0 px-4 md:px-8 pt-6 pb-4 border-b border-border-light">
         <div className="max-w-[720px] mx-auto">
-          <h1 className="text-[24px] font-bold text-text-primary mb-1">
-            Theme Settings
-          </h1>
+          <div className="flex items-center gap-2 mb-1">
+            <button onClick={onMobileMenuOpen} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-hover-bg text-text-muted">
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-[20px] md:text-[24px] font-bold text-text-primary">
+              Theme Settings
+            </h1>
+          </div>
           <p className="text-[14px] text-text-secondary">
             Customize appearance and accent color
           </p>
@@ -30,7 +36,7 @@ export default function ThemeContent() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-8">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-8">
         <div className="max-w-[720px] mx-auto space-y-10">
           {/* Appearance Mode */}
           <section>
@@ -40,7 +46,7 @@ export default function ThemeContent() {
             <p className="text-[13px] text-text-muted mb-4">
               Choose how Sondor AI looks on your device
             </p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {([
                 {
                   key: "light" as const,
@@ -135,7 +141,7 @@ export default function ThemeContent() {
             </p>
 
             {/* Color swatches */}
-            <div className="grid grid-cols-6 gap-3 mb-6">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
               {Object.entries(colors).map(([key, color]) => (
                 <button
                   key={key}
@@ -169,11 +175,11 @@ export default function ThemeContent() {
               <p className="text-[12px] font-medium text-text-muted mb-3">
                 Color shades
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 overflow-x-auto">
                 {(
                   [50, 100, 200, 300, 400, 500, 600, 700] as const
                 ).map((shade) => (
-                  <div key={shade} className="flex-1 flex flex-col items-center gap-1">
+                  <div key={shade} className="flex-1 min-w-[36px] flex flex-col items-center gap-1">
                     <div
                       className="w-full h-10 rounded-lg"
                       style={{ background: primary[shade] }}
@@ -201,10 +207,10 @@ export default function ThemeContent() {
                   : "bg-white border-gray-200"
               }`}
             >
-              <div className="flex h-[280px]">
+              <div className="flex h-[280px] overflow-hidden">
                 {/* Mini sidebar */}
                 <div
-                  className="w-[180px] flex flex-col p-3 border-r"
+                  className="hidden sm:flex w-[180px] flex-col p-3 border-r"
                   style={{
                     background:
                       resolvedMode === "dark" ? "#141422" : primary.sidebar,

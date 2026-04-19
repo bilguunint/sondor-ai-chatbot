@@ -18,6 +18,7 @@ import {
   FileText,
   ArrowRight,
   Heart,
+  Menu,
 } from "lucide-react";
 
 const categories = [
@@ -112,18 +113,23 @@ const trendingAssistants = [
   },
 ];
 
-export default function ExploreContent() {
+export default function ExploreContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Featured");
 
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 px-8 pt-6 pb-4 border-b border-border-light">
+      <header className="shrink-0 px-4 md:px-8 pt-6 pb-4 border-b border-border-light">
         <div className="max-w-[960px] mx-auto">
-          <h1 className="text-[24px] font-bold text-text-primary mb-1">
-            Explore
-          </h1>
+          <div className="flex items-center gap-2 mb-1">
+            <button onClick={onMobileMenuOpen} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-hover-bg text-text-muted">
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-[20px] md:text-[24px] font-bold text-text-primary">
+              Explore
+            </h1>
+          </div>
           <p className="text-[14px] text-text-secondary mb-5">
             Discover AI assistants built by the community
           </p>
@@ -161,7 +167,7 @@ export default function ExploreContent() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
         <div className="max-w-[960px] mx-auto space-y-8">
           {/* Featured Section */}
           <section>
@@ -174,7 +180,7 @@ export default function ExploreContent() {
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredAssistants.map((assistant) => (
                 <FeaturedCard key={assistant.name} {...assistant} />
               ))}
@@ -192,7 +198,7 @@ export default function ExploreContent() {
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {trendingAssistants.map((assistant) => (
                 <TrendingCard key={assistant.name} {...assistant} />
               ))}

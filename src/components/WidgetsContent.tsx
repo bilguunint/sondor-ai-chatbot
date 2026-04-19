@@ -39,6 +39,7 @@ import {
   Play,
   Clipboard,
   CheckCircle,
+  Menu,
 } from "lucide-react";
 
 type WidgetCategory = "all" | "data" | "profile" | "controls" | "chat" | "feedback";
@@ -1261,10 +1262,10 @@ function WidgetCodeModal({ widget, onClose }: { widget: { name: string; category
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="relative w-full max-w-[680px] max-h-[85vh] bg-card rounded-2xl border border-border-light shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="relative w-full sm:max-w-[680px] max-h-[90vh] sm:max-h-[85vh] bg-card rounded-t-2xl sm:rounded-2xl border border-border-light shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border-light shrink-0">
           <div>
             <div className="flex items-center gap-2.5">
               <Code2 className="w-5 h-5 text-primary-500" />
@@ -1281,7 +1282,7 @@ function WidgetCodeModal({ widget, onClose }: { widget: { name: string; category
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
           {info ? (
             <>
               {/* Dependencies */}
@@ -1347,7 +1348,7 @@ function WidgetCodeModal({ widget, onClose }: { widget: { name: string; category
   );
 }
 
-export default function WidgetsContent() {
+export default function WidgetsContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const [activeCategory, setActiveCategory] = useState<WidgetCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWidget, setSelectedWidget] = useState<{ name: string; category: WidgetCategory } | null>(null);
@@ -1395,11 +1396,14 @@ export default function WidgetsContent() {
 
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
-      <header className="shrink-0 px-8 pt-6 pb-4 border-b border-border-light">
+      <header className="shrink-0 px-4 md:px-8 pt-6 pb-4 border-b border-border-light">
         <div className="max-w-[1060px] mx-auto">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2.5">
-              <h1 className="text-[24px] font-bold text-text-primary">Widgets</h1>
+              <button onClick={onMobileMenuOpen} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-hover-bg text-text-muted">
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-[20px] md:text-[24px] font-bold text-text-primary">Widgets</h1>
               <span className="px-2 py-0.5 rounded-full bg-primary-50 text-primary-600 text-[11px] font-semibold">
                 {allWidgets.length} components
               </span>
@@ -1436,8 +1440,8 @@ export default function WidgetsContent() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-8 py-6">
-        <div className="max-w-[1060px] mx-auto grid grid-cols-3 gap-4">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
+        <div className="max-w-[1060px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((w, i) => (
             <div key={i} onClick={() => setSelectedWidget({ name: w.name, category: w.category })} className="flex flex-col rounded-xl border border-border-light bg-card hover:border-primary-200 hover:shadow-md transition-all overflow-hidden cursor-pointer group">
               <div className="p-4 flex-1">{w.component}</div>

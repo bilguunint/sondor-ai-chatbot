@@ -12,6 +12,7 @@ import {
   LogOut,
   Camera,
   ChevronRight,
+  Menu,
 } from "lucide-react";
 
 const settingsSections = [
@@ -46,25 +47,30 @@ const recentActivity = [
   { action: "Started 12 new conversations", time: "This week" },
 ];
 
-export default function ProfileContent() {
+export default function ProfileContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const [notificationsOn, setNotificationsOn] = useState(true);
 
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
-      <header className="shrink-0 px-8 pt-6 pb-4 border-b border-border-light">
+      <header className="shrink-0 px-4 md:px-8 pt-6 pb-4 border-b border-border-light">
         <div className="max-w-[960px] mx-auto">
-          <h1 className="text-[24px] font-bold text-text-primary">Profile</h1>
+          <div className="flex items-center gap-2">
+            <button onClick={onMobileMenuOpen} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-hover-bg text-text-muted">
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-[20px] md:text-[24px] font-bold text-text-primary">Profile</h1>
+          </div>
           <p className="text-[14px] text-text-secondary mt-1">
             Manage your account settings and preferences
           </p>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
         <div className="max-w-[960px] mx-auto space-y-6">
           {/* Profile Card */}
-          <div className="rounded-2xl border border-border-light bg-card p-6">
-            <div className="flex items-center gap-5">
+          <div className="rounded-2xl border border-border-light bg-card p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
               <div className="relative group">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[24px] font-bold">
                   BN
@@ -90,7 +96,7 @@ export default function ProfileContent() {
           </div>
 
           {/* Usage Stats */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               { label: "Conversations", value: "142" },
               { label: "Messages Sent", value: "1,847" },

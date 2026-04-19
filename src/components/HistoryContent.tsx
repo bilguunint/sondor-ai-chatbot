@@ -12,6 +12,7 @@ import {
   Clock,
   Filter,
   ArrowUpDown,
+  Menu,
 } from "lucide-react";
 
 type FilterTab = "all" | "starred" | "archived";
@@ -126,7 +127,7 @@ const dateGroups = [
   { label: "Earlier", filter: (d: string) => d.startsWith("Apr 12") },
 ];
 
-export default function HistoryContent() {
+export default function HistoryContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const [history, setHistory] = useState(initialHistory);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
@@ -157,11 +158,14 @@ export default function HistoryContent() {
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 px-8 pt-6 pb-4 border-b border-border-light">
+      <header className="shrink-0 px-4 md:px-8 pt-6 pb-4 border-b border-border-light">
         <div className="max-w-[960px] mx-auto">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2.5">
-              <h1 className="text-[24px] font-bold text-text-primary">History</h1>
+              <button onClick={onMobileMenuOpen} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-hover-bg text-text-muted">
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-[20px] md:text-[24px] font-bold text-text-primary">History</h1>
               <span className="px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-600 text-[11px] font-semibold">
                 {history.length} chats
               </span>
@@ -176,7 +180,7 @@ export default function HistoryContent() {
           </p>
 
           {/* Search + Tabs */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
               <input
@@ -187,6 +191,7 @@ export default function HistoryContent() {
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border-light bg-input-bg text-[14px] text-text-primary placeholder:text-text-muted outline-none focus:border-primary-300 focus:bg-card transition-colors"
               />
             </div>
+            <div className="flex gap-2">
             <button className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-border-light text-text-muted hover:bg-card-hover text-[12.5px] transition-colors">
               <Filter className="w-3.5 h-3.5" />
               Filter
@@ -195,6 +200,7 @@ export default function HistoryContent() {
               <ArrowUpDown className="w-3.5 h-3.5" />
               Sort
             </button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -224,7 +230,7 @@ export default function HistoryContent() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-5">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-5">
         <div className="max-w-[960px] mx-auto space-y-6">
           {dateGroups.map((group) => {
             const items = filtered.filter((h) => group.filter(h.date));

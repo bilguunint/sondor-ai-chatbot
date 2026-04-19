@@ -17,6 +17,7 @@ import {
   MoreHorizontal,
   Plus,
   BookmarkCheck,
+  Menu,
 } from "lucide-react";
 
 type Tab = "all" | "prompts" | "collections" | "starred";
@@ -115,7 +116,7 @@ const collections = [
   },
 ];
 
-export default function LibraryContent() {
+export default function LibraryContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -134,10 +135,15 @@ export default function LibraryContent() {
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 px-8 pt-6 pb-4 border-b border-border-light">
+      <header className="shrink-0 px-4 md:px-8 pt-6 pb-4 border-b border-border-light">
         <div className="max-w-[960px] mx-auto">
           <div className="flex items-center justify-between mb-1">
-            <h1 className="text-[24px] font-bold text-text-primary">Library</h1>
+            <div className="flex items-center gap-2">
+              <button onClick={onMobileMenuOpen} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-hover-bg text-text-muted">
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-[20px] md:text-[24px] font-bold text-text-primary">Library</h1>
+            </div>
             <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white text-[12.5px] font-medium transition-colors cursor-pointer">
               <Plus className="w-3.5 h-3.5" />
               New prompt
@@ -160,7 +166,7 @@ export default function LibraryContent() {
           </div>
 
           {/* Tabs */}
-          <div className="flex items-center gap-1 border-b border-border-light -mx-8 px-8">
+          <div className="flex items-center gap-1 border-b border-border-light -mx-4 px-4 md:-mx-8 md:px-8 overflow-x-auto">
             {tabs.map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -180,7 +186,7 @@ export default function LibraryContent() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
         <div className="max-w-[960px] mx-auto space-y-8">
           {/* Collections (show on all & collections tabs) */}
           {(activeTab === "all" || activeTab === "collections") && (
@@ -192,7 +198,7 @@ export default function LibraryContent() {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {collections.map((col) => (
                   <button
                     key={col.id}

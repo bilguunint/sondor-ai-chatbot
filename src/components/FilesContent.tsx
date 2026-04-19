@@ -18,6 +18,7 @@ import {
   List,
   SortAsc,
   HardDrive,
+  Menu,
 } from "lucide-react";
 
 type ViewMode = "grid" | "list";
@@ -110,7 +111,7 @@ const files: FileItem[] = [
 const storageUsed = 201.3;
 const storageTotal = 500;
 
-export default function FilesContent() {
+export default function FilesContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -121,10 +122,15 @@ export default function FilesContent() {
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 px-8 pt-6 pb-4 border-b border-border-light">
+      <header className="shrink-0 px-4 md:px-8 pt-6 pb-4 border-b border-border-light">
         <div className="max-w-[960px] mx-auto">
           <div className="flex items-center justify-between mb-1">
-            <h1 className="text-[24px] font-bold text-text-primary">Files</h1>
+            <div className="flex items-center gap-2">
+              <button onClick={onMobileMenuOpen} className="md:hidden p-2 -ml-2 rounded-lg hover:bg-hover-bg text-text-muted">
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-[20px] md:text-[24px] font-bold text-text-primary">Files</h1>
+            </div>
             <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white text-[12.5px] font-medium transition-colors cursor-pointer">
               <Upload className="w-3.5 h-3.5" />
               Upload file
@@ -135,7 +141,7 @@ export default function FilesContent() {
           </p>
 
           {/* Search + Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
               <input
@@ -146,6 +152,7 @@ export default function FilesContent() {
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border-light bg-input-bg text-[14px] text-text-primary placeholder:text-text-muted outline-none focus:border-primary-300 focus:bg-card transition-colors"
               />
             </div>
+            <div className="flex gap-2">
             <button className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-border-light text-text-muted hover:bg-card-hover text-[12.5px] transition-colors">
               <SortAsc className="w-3.5 h-3.5" />
               Sort
@@ -172,12 +179,13 @@ export default function FilesContent() {
                 <List className="w-4 h-4" />
               </button>
             </div>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
         <div className="max-w-[960px] mx-auto">
           {/* Storage indicator */}
           <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-input-bg border border-border-light">
@@ -200,7 +208,7 @@ export default function FilesContent() {
 
           {/* Files */}
           {viewMode === "grid" ? (
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {filtered.map((file) => (
                 <FileGridCard key={file.id} file={file} />
               ))}
@@ -210,9 +218,9 @@ export default function FilesContent() {
               {/* List header */}
               <div className="flex items-center gap-4 px-4 py-2 text-[11px] font-medium text-text-muted uppercase tracking-wide">
                 <span className="flex-1">Name</span>
-                <span className="w-20">Type</span>
-                <span className="w-20 text-right">Size</span>
-                <span className="w-24 text-right">Modified</span>
+                <span className="w-20 hidden sm:block">Type</span>
+                <span className="w-20 text-right hidden sm:block">Size</span>
+                <span className="w-24 text-right hidden sm:block">Modified</span>
                 <span className="w-10" />
               </div>
               {filtered.map((file) => (
@@ -268,9 +276,9 @@ function FileListRow({ file }: { file: FileItem }) {
           {file.name}
         </span>
       </div>
-      <span className="w-20 text-[12px] text-text-muted">{file.type}</span>
-      <span className="w-20 text-[12px] text-text-muted text-right">{file.size}</span>
-      <span className="w-24 text-[12px] text-text-muted text-right">{file.modified}</span>
+      <span className="w-20 text-[12px] text-text-muted hidden sm:block">{file.type}</span>
+      <span className="w-20 text-[12px] text-text-muted text-right hidden sm:block">{file.size}</span>
+      <span className="w-24 text-[12px] text-text-muted text-right hidden sm:block">{file.modified}</span>
       <div className="w-10 flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
         <button className="p-1 rounded-md hover:bg-hover-bg text-text-muted">
           <Eye className="w-3.5 h-3.5" />

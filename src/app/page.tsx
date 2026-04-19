@@ -17,10 +17,17 @@ export default function Home() {
   const [chatKey, setChatKey] = useState(0);
   const [activeView, setActiveView] = useState<ActiveView>("home");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const handleNewChat = () => {
     setChatKey((k) => k + 1);
     setActiveView("home");
+    setMobileSidebarOpen(false);
+  };
+
+  const handleNavigate = (view: ActiveView) => {
+    setActiveView(view);
+    setMobileSidebarOpen(false);
   };
 
   return (
@@ -28,26 +35,28 @@ export default function Home() {
       <Sidebar
         activeView={activeView}
         onNewChat={handleNewChat}
-        onNavigate={setActiveView}
+        onNavigate={handleNavigate}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
       {activeView === "explore" ? (
-        <ExploreContent />
+        <ExploreContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "library" ? (
-        <LibraryContent />
+        <LibraryContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "files" ? (
-        <FilesContent />
+        <FilesContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "history" ? (
-        <HistoryContent />
+        <HistoryContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "widgets" ? (
-        <WidgetsContent />
+        <WidgetsContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "theme" ? (
-        <ThemeContent />
+        <ThemeContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "profile" ? (
-        <ProfileContent />
+        <ProfileContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : (
-        <MainContent key={chatKey} />
+        <MainContent key={chatKey} onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       )}
     </div>
   );
