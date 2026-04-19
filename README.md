@@ -14,7 +14,7 @@
 
   <br><br>
 
-  <a href="#">Live Demo</a> · <a href="#">Website</a> · <a href="#">Documentation</a>
+  <a href="https://chatbot-uikit.vercel.app/">Live Demo</a>
 </div>
 
 <br>
