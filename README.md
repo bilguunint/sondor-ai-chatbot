@@ -33,8 +33,8 @@ A modern, fully responsive AI chatbot interface built with **Next.js 16**, **Tai
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/ai-chat-ui.git
-cd ai-chat-ui
+git clone https://github.com/bilguunint/chatbot-uikit.git
+cd chatbot-uikit
 ```
 
 ### 2. Install dependencies
