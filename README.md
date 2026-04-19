@@ -1,6 +1,44 @@
-# Sondor AI — Chat UI Kit
+<div align="center">
+  <img src="public/assets/logo-purple.png" height="80" alt="Sondor AI">
+  <h1>Sondor AI</h1>
+  <p><strong>Modern AI Chatbot UI Kit</strong></p>
+
+  ![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black?logo=next.js)
+  ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?logo=tailwindcss&logoColor=white)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white)
+  ![License](https://img.shields.io/badge/License-MIT-green)
+
+  <br>
+
+  <img src="public/assets/home-screen.png" width="700" alt="Sondor AI Screenshot" style="border-radius: 12px;">
+
+  <br><br>
+
+  <a href="#">Live Demo</a> · <a href="#">Website</a> · <a href="#">Documentation</a>
+</div>
+
+<br>
 
 A modern, fully responsive AI chatbot interface built with **Next.js 16**, **Tailwind CSS v4**, **TypeScript**, and **Lucide React** icons. Designed as a production-ready UI kit for AI-powered chat applications.
+
+## Screenshots
+
+<div align="center">
+
+### 🏠 Home — Chat Interface
+<img src="public/assets/home-screen.png" width="700" alt="Home Screen">
+
+<br>
+
+### 🧭 Explore — AI Assistants
+<img src="public/assets/explore-screen.png" width="700" alt="Explore Screen">
+
+<br>
+
+### 🧩 Widgets — Dashboard Components
+<img src="public/assets/widgets-screen.png" width="700" alt="Widgets Screen">
+
+</div>
 
 ## Features
 
