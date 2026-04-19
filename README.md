@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="public/assets/logo-purple.png" height="80" alt="Sondor AI">
-  <h1>Sondor AI</h1>
+  <img src="public/assets/logo-purple.png" height="80" alt="Sondor UI">
+  <h1>Sondor UI</h1>
   <p><strong>Modern AI Chatbot UI Kit</strong></p>
 
   ![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black?logo=next.js)
