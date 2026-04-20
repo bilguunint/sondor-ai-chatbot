@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm --filter @sondor/ui build && pnpm --filter @sondor/web build",
+  "buildCommand": "pnpm --filter sondor-ui build && pnpm --filter @sondor/web build",
   "devCommand": "pnpm --filter @sondor/web dev",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs"

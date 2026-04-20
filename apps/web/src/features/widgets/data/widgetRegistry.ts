@@ -37,7 +37,7 @@ import {
   ModelComparisonArenaWidget,
   ContextMemoryVisualizerWidget,
   PromptLabWorkbenchWidget,
-} from "@sondor/ui";
+} from "sondor-ui";
 
 export const widgetRegistry: WidgetCardItem[] = [
   { category: "ai-kit", Component: ConversationBranchingWidget, name: "Conversation Branching Tree", fullWidth: true },

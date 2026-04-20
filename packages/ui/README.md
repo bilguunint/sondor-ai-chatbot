@@ -1,18 +1,18 @@
-# @sondor/ui
+# sondor-ui
 
 > Modern, accessible **AI Chatbot UI Kit** — 30+ ready-to-use widgets built with React 19, Tailwind CSS v4, and TypeScript.
 
-[![npm version](https://img.shields.io/npm/v/@sondor/ui?color=7c3aed)](https://www.npmjs.com/package/@sondor/ui)
+[![npm version](https://img.shields.io/npm/v/sondor-ui?color=7c3aed)](https://www.npmjs.com/package/sondor-ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](../../LICENSE)
 
 ## Install
 
 ```bash
-npm install @sondor/ui
+npm install sondor-ui
 # or
-pnpm add @sondor/ui
+pnpm add sondor-ui
 # or
-yarn add @sondor/ui
+yarn add sondor-ui
 ```
 
 **Peer requirements:** `react >= 18.2`, `react-dom >= 18.2`, **Tailwind CSS v4** in your app.
@@ -21,7 +21,7 @@ yarn add @sondor/ui
 
 ```tsx
 // app/layout.tsx (or your global CSS entry)
-import "@sondor/ui/styles.css";
+import "sondor-ui/styles.css";
 ```
 
 ```tsx
@@ -30,7 +30,7 @@ import {
   ConversationBranchingWidget,
   ModelComparisonArenaWidget,
   TokenStreamInspectorWidget,
-} from "@sondor/ui";
+} from "sondor-ui";
 
 export default function Page() {
   return (
@@ -59,7 +59,7 @@ export default function Page() {
 
 ```ts
 // Tree-shakable subpath
-import { TokenStreamInspectorWidget } from "@sondor/ui/widgets";
+import { TokenStreamInspectorWidget } from "sondor-ui/widgets";
 ```
 
 ## License

@@ -10,8 +10,8 @@
   },
   "scripts": {
     "dev": "pnpm --filter @sondor/web dev",
-    "build": "pnpm --filter @sondor/ui build && pnpm --filter @sondor/web build",
-    "build:ui": "pnpm --filter @sondor/ui build",
+    "build": "pnpm --filter sondor-ui build && pnpm --filter @sondor/web build",
+    "build:ui": "pnpm --filter sondor-ui build",
     "build:web": "pnpm --filter @sondor/web build",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r exec rimraf dist .next .turbo node_modules",

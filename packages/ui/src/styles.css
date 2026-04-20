@@ -2,7 +2,7 @@
  * Sondor UI — Design tokens and base styles
  *
  * Import this file once in your application:
- *   import "@sondor/ui/styles.css";
+ *   import "sondor-ui/styles.css";
  *
  * Requires Tailwind CSS v4 in the consumer app.
  */

@@ -5,8 +5,8 @@
  *
  * @example
  * ```tsx
- * import { ChatBubbleWidget, ConversationBranchingWidget } from "@sondor/ui";
- * import "@sondor/ui/styles.css";
+ * import { ChatBubbleWidget, ConversationBranchingWidget } from "sondor-ui";
+ * import "sondor-ui/styles.css";
  * ```
  */
 export * from "./widgets";
