@@ -1443,14 +1443,17 @@ export default function WidgetsContent({ onMobileMenuOpen }: { onMobileMenuOpen?
       <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
         <div className="max-w-[1060px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((w, i) => (
-            <div key={i} onClick={() => setSelectedWidget({ name: w.name, category: w.category })} className="flex flex-col rounded-xl border border-border-light bg-card hover:border-primary-200 hover:shadow-md transition-all overflow-hidden cursor-pointer group">
+            <div key={i} className="flex flex-col rounded-xl border border-border-light bg-card hover:border-primary-200 hover:shadow-md transition-all overflow-hidden group">
               <div className="p-4 flex-1">{w.component}</div>
               <div className="px-4 py-2.5 border-t border-border-light bg-hover-bg/50 flex items-center justify-between mt-auto">
                 <span className="text-[12px] font-semibold text-text-primary">{w.name}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-primary-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                  <button
+                    onClick={() => setSelectedWidget({ name: w.name, category: w.category })}
+                    className="text-[10px] text-primary-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 px-2 py-1 rounded-md hover:bg-primary-50 cursor-pointer"
+                  >
                     <Code2 className="w-3 h-3" /> View Code
-                  </span>
+                  </button>
                   <span className="text-[10.5px] text-text-muted capitalize px-2 py-0.5 rounded-full bg-card border border-border-light">
                     {categories.find((c) => c.key === w.category)?.label}
                   </span>

@@ -38,6 +38,11 @@ A modern, fully responsive AI chatbot interface built with **Next.js 16**, **Tai
 ### 🧩 Widgets — Dashboard Components
 <img src="public/assets/widgets-screen.png" width="700" alt="Widgets Screen">
 
+<br>
+
+### 💬 Chat Response Types
+<img src="public/assets/response-types.png" width="700" alt="Chat Response Types">
+
 </div>
 
 ## Features
