@@ -44,7 +44,7 @@ export default function FileBubble({ content, thinkingTime }: { content: string;
             </button>
           </div>
         </div>
-        <ActionIcons />
+        <ActionIcons content={content} />
       </div>
     </div>
   );

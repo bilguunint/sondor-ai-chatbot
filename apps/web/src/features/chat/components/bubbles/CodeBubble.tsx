@@ -48,7 +48,7 @@ export default function CodeBubble({ content, thinkingTime }: { content: string;
             </pre>
           </div>
         </div>
-        <ActionIcons />
+        <ActionIcons content={content} />
       </div>
     </div>
   );

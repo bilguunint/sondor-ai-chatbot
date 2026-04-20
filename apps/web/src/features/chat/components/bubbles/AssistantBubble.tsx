@@ -24,7 +24,7 @@ export default function AssistantBubble({
         <div className="text-[14px] text-text-primary leading-relaxed">
           {content}
         </div>
-        <ActionIcons />
+        <ActionIcons content={content} />
       </div>
     </div>
   );

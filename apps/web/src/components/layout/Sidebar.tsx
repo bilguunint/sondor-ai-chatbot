@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useTheme } from "@/contexts/ThemeProvider";
+import { useToast } from "@/contexts/ToastProvider";
 import type { ActiveView } from "@/types";
 
 const chatHistoryToday = [
@@ -57,6 +58,19 @@ export default function Sidebar({
   onMobileClose?: () => void;
 }) {
   const { primaryKey } = useTheme();
+  const { toast } = useToast();
+
+  const handleSearch = () => {
+    toast("Search", { description: "⌘K / Ctrl+K — full search coming soon" });
+  };
+
+  const handleLogout = () => {
+    toast("Signed out", { type: "success", description: "Demo only — no real auth" });
+  };
+
+  const handleHistoryClick = (item: string) => {
+    toast("Loading conversation", { description: item.length > 40 ? item.slice(0, 40) + "..." : item });
+  };
 
   const navItems = [
     { icon: Compass, label: "Explore", view: "explore" as ActiveView },
@@ -119,6 +133,7 @@ export default function Sidebar({
         {/* Search */}
         <div className="px-2 pb-1 w-full">
           <button
+            onClick={handleSearch}
             className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-sidebar-hover text-text-muted cursor-pointer"
             title="Search"
           >
@@ -216,13 +231,16 @@ export default function Sidebar({
 
       {/* Search */}
       <div className="px-3 py-2">
-        <div className="flex items-center gap-2 px-3 py-[6px] rounded-lg border border-border-light bg-card text-text-muted text-[13px]">
+        <button
+          onClick={handleSearch}
+          className="w-full flex items-center gap-2 px-3 py-[6px] rounded-lg border border-border-light bg-card text-text-muted text-[13px] hover:bg-sidebar-hover cursor-pointer"
+        >
           <Search className="w-3.5 h-3.5" />
           <span>Search</span>
           <div className="ml-auto">
             <Sparkles className="w-3.5 h-3.5 text-primary-400" />
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Navigation */}
@@ -252,9 +270,9 @@ export default function Sidebar({
 
       {/* Chat History */}
       <div className="flex-1 overflow-y-auto px-3 pt-3 space-y-4">
-        <ChatGroup label="Today" items={chatHistoryToday} />
-        <ChatGroup label="Yesterday" items={chatHistoryYesterday} />
-        <ChatGroup label="7 days" items={chatHistory7Days} />
+        <ChatGroup label="Today" items={chatHistoryToday} onItemClick={handleHistoryClick} />
+        <ChatGroup label="Yesterday" items={chatHistoryYesterday} onItemClick={handleHistoryClick} />
+        <ChatGroup label="7 days" items={chatHistory7Days} onItemClick={handleHistoryClick} />
       </div>
 
       {/* User Profile */}
@@ -276,7 +294,7 @@ export default function Sidebar({
               </p>
             </div>
           </button>
-          <button className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted">
+          <button onClick={handleLogout} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
             <LogOut className="w-4 h-4" />
           </button>
         </div>
@@ -291,7 +309,7 @@ function MobileSidebarContent({
   onNewChat,
   onNavigate,
   navItems,
-  primaryKey,
+  primaryKey: _primaryKey,
 }: {
   activeView: ActiveView;
   onNewChat?: () => void;
@@ -299,6 +317,11 @@ function MobileSidebarContent({
   navItems: { icon: React.ComponentType<{ className?: string }>; label: string; view: ActiveView }[];
   primaryKey: string;
 }) {
+  const { toast } = useToast();
+  const handleSearch = () => toast("Search", { description: "⌘K / Ctrl+K — full search coming soon" });
+  const handleLogout = () => toast("Signed out", { type: "success", description: "Demo only — no real auth" });
+  const handleHistoryClick = (item: string) =>
+    toast("Loading conversation", { description: item.length > 40 ? item.slice(0, 40) + "..." : item });
   return (
     <>
       <div className="px-3 pt-2 pb-1">
@@ -307,11 +330,14 @@ function MobileSidebarContent({
         </button>
       </div>
       <div className="px-3 py-2">
-        <div className="flex items-center gap-2 px-3 py-[6px] rounded-lg border border-border-light bg-card text-text-muted text-[13px]">
+        <button
+          onClick={handleSearch}
+          className="w-full flex items-center gap-2 px-3 py-[6px] rounded-lg border border-border-light bg-card text-text-muted text-[13px] hover:bg-sidebar-hover cursor-pointer"
+        >
           <Search className="w-3.5 h-3.5" />
           <span>Search</span>
           <div className="ml-auto"><Sparkles className="w-3.5 h-3.5 text-primary-400" /></div>
-        </div>
+        </button>
       </div>
       <nav className="px-3 py-1 space-y-[2px]">
         {navItems.map(({ icon: Icon, label, view }) => {
@@ -328,25 +354,28 @@ function MobileSidebarContent({
         })}
       </nav>
       <div className="flex-1 overflow-y-auto px-3 pt-3 space-y-4">
-        <ChatGroup label="Today" items={chatHistoryToday} />
-        <ChatGroup label="Yesterday" items={chatHistoryYesterday} />
-        <ChatGroup label="7 days" items={chatHistory7Days} />
+        <ChatGroup label="Today" items={chatHistoryToday} onItemClick={handleHistoryClick} />
+        <ChatGroup label="Yesterday" items={chatHistoryYesterday} onItemClick={handleHistoryClick} />
+        <ChatGroup label="7 days" items={chatHistory7Days} onItemClick={handleHistoryClick} />
       </div>
-      <div className="px-3 py-3 border-t border-border-light">
+      <div className="px-3 py-3 border-t border-border-light flex items-center gap-2">
         <button onClick={() => onNavigate?.("profile" as ActiveView)}
-          className="flex items-center gap-2.5 hover:opacity-80 transition-opacity cursor-pointer">
+          className="flex items-center gap-2.5 flex-1 hover:opacity-80 transition-opacity cursor-pointer">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">BN</div>
           <div className="text-left">
             <p className="text-[13px] font-medium text-text-primary">Bilguun Nyamlhagva</p>
             <p className="text-[11px] text-text-muted">bilguunint@gmail.com</p>
           </div>
         </button>
+        <button onClick={handleLogout} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </>
   );
 }
 
-function ChatGroup({ label, items }: { label: string; items: string[] }) {
+function ChatGroup({ label, items, onItemClick }: { label: string; items: string[]; onItemClick?: (item: string) => void }) {
   return (
     <div>
       <p className="text-[11px] font-medium text-text-muted px-3 pb-1">
@@ -356,7 +385,8 @@ function ChatGroup({ label, items }: { label: string; items: string[] }) {
         {items.map((item, i) => (
           <button
             key={i}
-            className="w-full text-left px-3 py-[6px] rounded-lg text-[12.5px] text-text-secondary hover:bg-sidebar-hover transition-colors truncate"
+            onClick={() => onItemClick?.(item)}
+            className="w-full text-left px-3 py-[6px] rounded-lg text-[12.5px] text-text-secondary hover:bg-sidebar-hover transition-colors truncate cursor-pointer"
           >
             {item}
           </button>

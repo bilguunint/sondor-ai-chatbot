@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 
 import { useTheme } from "@/contexts/ThemeProvider";
+import { useToast } from "@/contexts/ToastProvider";
 import type { ResponseType, ChatMessage } from "@/types";
 import { aiModels, researchOptions, suggestions, getMockResponse, getMockTypedResponse } from "@/lib/mockData";
 import { UserBubble, AssistantBubble, CodeBubble, FileBubble, AudioBubble, ImageBubble } from "./components/bubbles";
@@ -47,6 +48,8 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
   const [showResearchDropdown, setShowResearchDropdown] = useState(false);
   const [activeResponseType, setActiveResponseType] = useState<ResponseType>("default");
   const { primaryKey } = useTheme();
+  void primaryKey;
+  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const modelDropdownRef = useRef<HTMLDivElement>(null);
@@ -188,6 +191,85 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
     }, 100);
   };
 
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "https://chatbot-uikit.vercel.app";
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Link copied", { type: "success", description: "Share URL copied to clipboard" });
+    } catch {
+      toast("Share link ready", { description: url });
+    }
+  };
+
+  const handleExport = () => {
+    if (messages.length === 0) {
+      toast("Nothing to export", { type: "warning", description: "Start a chat first" });
+      return;
+    }
+    const text = messages
+      .map((m) => `${m.role === "user" ? "You" : "Sondor"}:\n${m.content}`)
+      .join("\n\n---\n\n");
+    try {
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sondor-chat-${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast("Chat exported", { type: "success" });
+    } catch {
+      toast("Export failed", { type: "warning" });
+    }
+  };
+
+  const handleFileAttach = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.onchange = () => {
+      const f = input.files?.[0];
+      if (f) toast(`Attached: ${f.name}`, { type: "success", description: `${(f.size / 1024).toFixed(1)} KB` });
+    };
+    input.click();
+  };
+
+  const handleMic = () => {
+    toast("Voice input", { description: "Recording simulation — connect your STT provider" });
+  };
+
+  const handleWebSearch = () => {
+    toast("Web search enabled", { type: "success", description: "Next response will include live data" });
+  };
+
+  const handleCamera = () => {
+    toast("Camera", { description: "Image capture requires device permission" });
+  };
+
+  const handleLightbulb = () => {
+    const tips = [
+      "Tip: Use Shift+Enter for multi-line input",
+      "Tip: Try different response types for better results",
+      "Tip: Pin useful responses to your library",
+    ];
+    toast(tips[Math.floor(Math.random() * tips.length)]);
+  };
+
+  const handleClipboardPrompt = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setInputValue(text);
+        toast("Pasted from clipboard", { type: "success" });
+      } else {
+        toast("Clipboard is empty", { type: "warning" });
+      }
+    } catch {
+      toast("Clipboard access denied", { type: "warning" });
+    }
+  };
+
   return (
     <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
       {/* Top Bar */}
@@ -245,13 +327,13 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
         </div>
         </div>
         <div className="flex items-center gap-1 md:gap-3">
-          <button className="hidden sm:flex p-2 rounded-lg hover:bg-hover-bg text-text-muted">
+          <button onClick={() => toast("Options", { description: "Share, report, settings" })} className="hidden sm:flex p-2 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="More options">
             <MoreHorizontal className="w-4 h-4" />
           </button>
-          <button className="hidden sm:flex p-2 rounded-lg hover:bg-hover-bg text-text-muted">
+          <button onClick={handleShare} className="hidden sm:flex p-2 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="Copy share link">
             <Link2 className="w-4 h-4" />
           </button>
-          <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-hover-bg text-text-secondary text-[13px]">
+          <button onClick={handleExport} className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-hover-bg text-text-secondary text-[13px] cursor-pointer" title="Export chat as .txt">
             <Download className="w-4 h-4" />
             <span>Export chat</span>
           </button>
@@ -336,18 +418,18 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
                       </div>
                     )}
                   </div>
-                  <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+                  <button onClick={handleClipboardPrompt} className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="Paste from clipboard">
                     <ClipboardCheck className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+                  <button onClick={handleLightbulb} className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="Tip">
                     <Lightbulb className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+                  <button onClick={handleCamera} className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="Camera">
                     <Camera className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+                  <button onClick={handleWebSearch} className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="Web search">
                     <Globe className="w-4 h-4" />
                   </button>
                   <button
@@ -368,14 +450,20 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
 
             {/* Saved Prompts */}
             <div className="flex items-center justify-between mt-3 px-1">
-              <div className="flex items-center gap-1.5 text-[12.5px] text-primary-500 font-medium">
+              <button
+                onClick={() => toast("Saved prompts", { description: "Browse prompts in your Library" })}
+                className="flex items-center gap-1.5 text-[12.5px] text-primary-500 font-medium hover:opacity-80 cursor-pointer"
+              >
                 <Sparkles className="w-3.5 h-3.5" />
                 Saved prompts
-              </div>
-              <div className="flex items-center gap-1.5 text-[12.5px] text-text-muted">
+              </button>
+              <button
+                onClick={handleFileAttach}
+                className="flex items-center gap-1.5 text-[12.5px] text-text-muted hover:text-text-secondary cursor-pointer"
+              >
                 <Paperclip className="w-3.5 h-3.5" />
                 Attach file
-              </div>
+              </button>
             </div>
           </div>
 
@@ -599,7 +687,7 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
                 />
                 <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-border-light">
                   <div className="flex items-center gap-2">
-                    <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+                    <button onClick={handleFileAttach} className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="Attach file">
                       <Plus className="w-4 h-4" />
                     </button>
                     <div className="relative" ref={view === "chat" ? researchDropdownRef : undefined}>
@@ -637,7 +725,7 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+                    <button onClick={handleMic} className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer" title="Voice input">
                       <Mic className="w-4 h-4" />
                     </button>
                     <button
@@ -665,17 +753,32 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
           <div className="text-[11.5px] text-text-muted">
             Join the valerus community for more insights{" "}
             <a
-              href="#"
-              className="text-primary-500 hover:text-primary-600 font-medium"
+              href="https://discord.gg"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                toast("Discord", { description: "Opening community link..." });
+                window.open("https://discord.gg", "_blank", "noopener,noreferrer");
+              }}
+              className="text-primary-500 hover:text-primary-600 font-medium cursor-pointer"
             >
               Join Discord
             </a>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+            <button
+              onClick={() => toast("Language", { description: "English (US) — more locales coming soon" })}
+              className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer"
+              title="Language"
+            >
               <Languages className="w-4 h-4" />
             </button>
-            <button className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted">
+            <button
+              onClick={() => toast("Help & shortcuts", { description: "Press ? anytime to view keyboard shortcuts" })}
+              className="p-1.5 rounded-lg hover:bg-hover-bg text-text-muted cursor-pointer"
+              title="Help"
+            >
               <HelpCircle className="w-4 h-4" />
             </button>
           </div>

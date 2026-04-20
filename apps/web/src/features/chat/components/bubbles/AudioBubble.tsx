@@ -79,7 +79,7 @@ export default function AudioBubble({ content, thinkingTime }: { content: string
             </div>
           )}
         </div>
-        <ActionIcons />
+        <ActionIcons content={content} />
       </div>
     </div>
   );

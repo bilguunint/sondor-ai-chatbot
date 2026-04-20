@@ -31,7 +31,7 @@ A modern, fully responsive AI chatbot interface built with **Next.js 16**, **Tai
 
 ## 💡 Why Sondor UI?
 
-> **The shadcn/ui for AI chatbots.** A production-ready UI kit that saves you weeks of design & frontend work — so you can focus on the AI, not the pixels.
+> **A production-ready UI kit for AI chatbots.** Save weeks of design & frontend work — so you can focus on the AI, not the pixels.
 
 Building an AI chatbot, agent dashboard, or LLM analytics tool? You shouldn't have to reinvent the UI every time. Sondor UI gives you a batteries-included, AI-first component library under the MIT license.
 
@@ -44,7 +44,7 @@ Building an AI chatbot, agent dashboard, or LLM analytics tool? You shouldn't ha
 
 ### What makes it different?
 
-| | Generic UI kits<br/>(shadcn, MUI) | Premium kits<br/>($$$) | **Sondor UI** |
+| | Generic UI kits<br/>(MUI, Chakra) | Premium kits<br/>($$$) | **Sondor UI** |
 |---|:-:|:-:|:-:|
 | Chatbot-first components | ❌ | ⚠️ | ✅ |
 | Conversation branching, token stream, model arena | ❌ | ❌ | ✅ |
