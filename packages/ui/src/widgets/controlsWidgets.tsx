@@ -224,8 +224,8 @@ export function KeyboardShortcutsWidget() {
           <div key={s.desc} className="flex items-center justify-between py-1">
             <span className="text-xs text-gray-500">{s.desc}</span>
             <div className="flex gap-1">
-              {s.keys.map((k) => (
-                <kbd key={k} className="min-w-[22px] h-[22px] rounded-md bg-gray-100 border text-[10px]
+              {s.keys.map((k, i) => (
+                <kbd key={`${s.desc}-${i}`} className="min-w-[22px] h-[22px] rounded-md bg-gray-100 border text-[10px]
                   font-mono font-medium flex items-center justify-center px-1.5 shadow-sm">{k}</kbd>
               ))}
             </div>
