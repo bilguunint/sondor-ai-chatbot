@@ -4,16 +4,12 @@ import { Loader2, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { useFirebase } from "@/contexts/FirebaseProvider";
-import { SetupWizard } from "@/features/setup";
-import { SignInScreen } from "@/features/auth";
 
 /**
- * Renders the appropriate boot screen based on Firebase status:
- *   - loading       → spinner
- *   - needs-config  → SetupWizard
- *   - needs-auth    → SignInScreen
- *   - ready         → children (the actual app)
- *   - error         → error screen with retry / reset
+ * Boot gate that only blocks the app while Firebase is still booting or has
+ * crashed during init. The `needs-config` and `needs-auth` states are now
+ * treated as "guest mode" — the full app renders and individual features
+ * (or the sidebar Sign-in button) can prompt the user to sign in on demand.
  */
 export default function AuthGate({ children }: { children: ReactNode }) {
   const { status, error, resetConfig } = useFirebase();
@@ -27,9 +23,6 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       </main>
     );
   }
-
-  if (status === "needs-config") return <SetupWizard />;
-  if (status === "needs-auth") return <SignInScreen />;
 
   if (status === "error") {
     return (

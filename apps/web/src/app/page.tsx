@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Sidebar from "@/components/layout/Sidebar";
+import AuthModal from "@/components/AuthModal";
 import ChatView from "@/features/chat";
 import ExploreContent from "@/features/explore";
 import LibraryContent from "@/features/library";
@@ -19,6 +20,7 @@ export default function Home() {
   const [activeView, setActiveView] = useState<ActiveView>("home");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const { startNewChat, setActiveConversation } = useChatStore();
 
   const handleNewChat = () => {
@@ -45,6 +47,7 @@ export default function Home() {
         onNewChat={handleNewChat}
         onNavigate={handleNavigate}
         onSelectConversation={handleSelectConversation}
+        onRequestSignIn={() => setAuthModalOpen(true)}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         mobileOpen={mobileSidebarOpen}
@@ -70,6 +73,7 @@ export default function Home() {
       ) : (
         <ChatView onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       )}
+      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );
 }

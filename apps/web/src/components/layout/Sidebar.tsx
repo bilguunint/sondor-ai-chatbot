@@ -8,6 +8,7 @@ import {
   BookOpen,
   FileText,
   History,
+  LogIn,
   LogOut,
   Sparkles,
   PanelLeftClose,
@@ -63,6 +64,7 @@ export default function Sidebar({
   onNewChat,
   onNavigate,
   onSelectConversation,
+  onRequestSignIn,
   collapsed,
   onToggleCollapse,
   mobileOpen,
@@ -73,6 +75,8 @@ export default function Sidebar({
   onNavigate?: (view: ActiveView) => void;
   /** Activate a conversation in the store and switch to the chat view. */
   onSelectConversation?: (id: string) => void;
+  /** Open the sign-in / setup modal (used when no user is signed in). */
+  onRequestSignIn?: () => void;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   mobileOpen?: boolean;
@@ -84,9 +88,10 @@ export default function Sidebar({
   const { user, signOut } = useFirebase();
   const { profile } = useUserProfile();
 
+  const isGuest = !user;
   const groups = useMemo(() => groupConversations(conversations), [conversations]);
-  const displayName = profile?.displayName || user?.displayName || "Anonymous";
-  const email = profile?.email || user?.email || "";
+  const displayName = profile?.displayName || user?.displayName || (isGuest ? "Guest" : "Anonymous");
+  const email = profile?.email || user?.email || (isGuest ? "Not signed in" : "");
   const photoURL = profile?.photoURL || user?.photoURL || "";
   const initials = (displayName || "S A")
     .split(/\s+/)
@@ -151,10 +156,12 @@ export default function Sidebar({
                 email={email}
                 initials={initials}
                 photoURL={photoURL}
+                isGuest={isGuest}
                 onNewChat={onNewChat}
                 onNavigate={onNavigate}
                 onSelectConversation={handleConversationClick}
                 onSignOut={handleLogout}
+                onRequestSignIn={onRequestSignIn}
                 navItems={navItems}
                 primaryKey={primaryKey}
               />
@@ -224,20 +231,30 @@ export default function Sidebar({
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* User avatar */}
+        {/* User avatar / sign-in */}
         <div className="pb-3">
-          <button
-            onClick={() => onNavigate?.("profile" as ActiveView)}
-            className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold cursor-pointer hover:opacity-80 transition-opacity"
-            title="Profile"
-          >
-            {photoURL ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={photoURL} alt={displayName} className="w-full h-full object-cover" />
-            ) : (
-              initials || "SA"
-            )}
-          </button>
+          {isGuest ? (
+            <button
+              onClick={onRequestSignIn}
+              className="w-8 h-8 rounded-full bg-primary-500 hover:bg-primary-600 text-white flex items-center justify-center cursor-pointer transition-colors"
+              title="Sign in"
+            >
+              <LogIn className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => onNavigate?.("profile" as ActiveView)}
+              className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold cursor-pointer hover:opacity-80 transition-opacity"
+              title="Profile"
+            >
+              {photoURL ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={photoURL} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                initials || "SA"
+              )}
+            </button>
+          )}
         </div>
       </aside>
       </>
@@ -268,10 +285,12 @@ export default function Sidebar({
               email={email}
               initials={initials}
               photoURL={photoURL}
+              isGuest={isGuest}
               onNewChat={onNewChat}
               onNavigate={onNavigate}
               onSelectConversation={handleConversationClick}
               onSignOut={handleLogout}
+              onRequestSignIn={onRequestSignIn}
               navItems={navItems}
               primaryKey={primaryKey}
             />
@@ -365,34 +384,44 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* User Profile */}
+      {/* User Profile / Sign-in */}
       <div className="px-3 py-3 border-t border-border-light">
-        <div className="flex items-center gap-2.5">
+        {isGuest ? (
           <button
-            onClick={() => onNavigate?.("profile" as ActiveView)}
-            className="flex items-center gap-2.5 flex-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer"
+            onClick={onRequestSignIn}
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-primary-500 hover:bg-primary-600 text-white text-[13px] font-medium transition-colors cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">
-              {photoURL ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={photoURL} alt={displayName} className="w-full h-full object-cover" />
-              ) : (
-                initials || "SA"
-              )}
-            </div>
-            <div className="flex-1 min-w-0 text-left">
-              <p className="text-[13px] font-medium text-text-primary truncate">
-                {displayName}
-              </p>
-              <p className="text-[11px] text-text-muted truncate">
-                {email}
-              </p>
-            </div>
+            <LogIn className="w-4 h-4" />
+            Sign in
           </button>
-          <button onClick={handleLogout} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => onNavigate?.("profile" as ActiveView)}
+              className="flex items-center gap-2.5 flex-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">
+                {photoURL ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={photoURL} alt={displayName} className="w-full h-full object-cover" />
+                ) : (
+                  initials || "SA"
+                )}
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-[13px] font-medium text-text-primary truncate">
+                  {displayName}
+                </p>
+                <p className="text-[11px] text-text-muted truncate">
+                  {email}
+                </p>
+              </div>
+            </button>
+            <button onClick={handleLogout} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
     </>
@@ -407,10 +436,12 @@ function MobileSidebarContent({
   email,
   initials,
   photoURL,
+  isGuest,
   onNewChat,
   onNavigate,
   onSelectConversation,
   onSignOut,
+  onRequestSignIn,
   navItems,
   primaryKey: _primaryKey,
 }: {
@@ -421,10 +452,12 @@ function MobileSidebarContent({
   email: string;
   initials: string;
   photoURL: string;
+  isGuest: boolean;
   onNewChat?: () => void;
   onNavigate?: (view: ActiveView) => void;
   onSelectConversation: (id: string) => void;
   onSignOut: () => void;
+  onRequestSignIn?: () => void;
   navItems: { icon: React.ComponentType<{ className?: string }>; label: string; view: ActiveView }[];
   primaryKey: string;
 }) {
@@ -479,24 +512,36 @@ function MobileSidebarContent({
         )}
       </div>
       <div className="px-3 py-3 border-t border-border-light flex items-center gap-2">
-        <button onClick={() => onNavigate?.("profile" as ActiveView)}
-          className="flex items-center gap-2.5 flex-1 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">
-            {photoURL ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={photoURL} alt={displayName} className="w-full h-full object-cover" />
-            ) : (
-              initials || "SA"
-            )}
-          </div>
-          <div className="text-left min-w-0">
-            <p className="text-[13px] font-medium text-text-primary truncate">{displayName}</p>
-            <p className="text-[11px] text-text-muted truncate">{email}</p>
-          </div>
-        </button>
-        <button onClick={onSignOut} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
-          <LogOut className="w-4 h-4" />
-        </button>
+        {isGuest ? (
+          <button
+            onClick={onRequestSignIn}
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-primary-500 hover:bg-primary-600 text-white text-[13px] font-medium transition-colors cursor-pointer"
+          >
+            <LogIn className="w-4 h-4" />
+            Sign in
+          </button>
+        ) : (
+          <>
+            <button onClick={() => onNavigate?.("profile" as ActiveView)}
+              className="flex items-center gap-2.5 flex-1 hover:opacity-80 transition-opacity cursor-pointer">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">
+                {photoURL ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={photoURL} alt={displayName} className="w-full h-full object-cover" />
+                ) : (
+                  initials || "SA"
+                )}
+              </div>
+              <div className="text-left min-w-0">
+                <p className="text-[13px] font-medium text-text-primary truncate">{displayName}</p>
+                <p className="text-[11px] text-text-muted truncate">{email}</p>
+              </div>
+            </button>
+            <button onClick={onSignOut} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
     </>
   );

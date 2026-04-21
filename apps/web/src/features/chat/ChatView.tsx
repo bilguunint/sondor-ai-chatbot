@@ -49,7 +49,7 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
   const firstName =
     profile?.firstName?.trim() ||
     (profile?.displayName || user?.displayName || "").trim().split(/\s+/)[0] ||
-    "there";
+    (user ? "there" : "Guest");
 
   const [view, setView] = useState<"home" | "chat">(activeConversationId ? "chat" : "home");
   const [inputValue, setInputValue] = useState("");
