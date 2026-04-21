@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Plus,
   Search,
@@ -19,31 +19,49 @@ import {
 
 import { useTheme } from "@/contexts/ThemeProvider";
 import { useToast } from "@/contexts/ToastProvider";
+import { useChatStore } from "@/contexts/ChatStoreProvider";
+import { useFirebase } from "@/contexts/FirebaseProvider";
+import type { Conversation } from "@/lib/firebase/chats";
 import type { ActiveView } from "@/types";
 
-const chatHistoryToday = [
-  "Create a detailed 7-day sprint plan f...",
-  "Draft a concise email to stakeholder...",
-  "Analyze the 'Eisenhower Matrix' an...",
-];
+interface ConversationGroup {
+  label: string;
+  items: Conversation[];
+}
 
-const chatHistoryYesterday = [
-  "Summarize the main differences be...",
-  "I need to negotiate an extension for ...",
-];
+/** Bucket conversations by `updatedAt` into Today / Yesterday / 7 days / Older. */
+function groupConversations(list: Conversation[]): ConversationGroup[] {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfYesterday = startOfDay - 24 * 60 * 60 * 1000;
+  const startOf7DaysAgo = startOfDay - 7 * 24 * 60 * 60 * 1000;
 
-const chatHistory7Days = [
-  "Generate 5 effective morning habits...",
-  "As a non-technical PM, list 5 crucial...",
-  "Help me allocate 8 hours tomorrow:...",
-  "We need a creative name for our ne...",
-  "Write a 100-word positive feedback...",
-];
+  const today: Conversation[] = [];
+  const yesterday: Conversation[] = [];
+  const lastWeek: Conversation[] = [];
+  const older: Conversation[] = [];
+
+  for (const c of list) {
+    const ts = c.updatedAt || c.createdAt;
+    if (ts >= startOfDay) today.push(c);
+    else if (ts >= startOfYesterday) yesterday.push(c);
+    else if (ts >= startOf7DaysAgo) lastWeek.push(c);
+    else older.push(c);
+  }
+
+  return [
+    { label: "Today", items: today },
+    { label: "Yesterday", items: yesterday },
+    { label: "Previous 7 days", items: lastWeek },
+    { label: "Older", items: older },
+  ].filter((g) => g.items.length > 0);
+}
 
 export default function Sidebar({
   activeView,
   onNewChat,
   onNavigate,
+  onSelectConversation,
   collapsed,
   onToggleCollapse,
   mobileOpen,
@@ -52,6 +70,8 @@ export default function Sidebar({
   activeView: ActiveView;
   onNewChat?: () => void;
   onNavigate?: (view: ActiveView) => void;
+  /** Activate a conversation in the store and switch to the chat view. */
+  onSelectConversation?: (id: string) => void;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   mobileOpen?: boolean;
@@ -59,17 +79,39 @@ export default function Sidebar({
 }) {
   const { primaryKey } = useTheme();
   const { toast } = useToast();
+  const { conversations, activeConversationId } = useChatStore();
+  const { user, signOut } = useFirebase();
+
+  const groups = useMemo(() => groupConversations(conversations), [conversations]);
+  const displayName = user?.displayName ?? "Anonymous";
+  const email = user?.email ?? "";
+  const initials = (displayName || "S A")
+    .split(/\s+/)
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   const handleSearch = () => {
     toast("Search", { description: "⌘K / Ctrl+K — full search coming soon" });
   };
 
-  const handleLogout = () => {
-    toast("Signed out", { type: "success", description: "Demo only — no real auth" });
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast("Signed out", { type: "success" });
+    } catch (err) {
+      toast("Sign out failed", {
+        type: "warning",
+        description: err instanceof Error ? err.message : String(err),
+      });
+    }
   };
 
-  const handleHistoryClick = (item: string) => {
-    toast("Loading conversation", { description: item.length > 40 ? item.slice(0, 40) + "..." : item });
+  const handleConversationClick = (id: string) => {
+    onSelectConversation?.(id);
+    onMobileClose?.();
   };
 
   const navItems = [
@@ -98,7 +140,20 @@ export default function Sidebar({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <MobileSidebarContent activeView={activeView} onNewChat={onNewChat} onNavigate={onNavigate} navItems={navItems} primaryKey={primaryKey} />
+              <MobileSidebarContent
+                activeView={activeView}
+                activeConversationId={activeConversationId}
+                groups={groups}
+                displayName={displayName}
+                email={email}
+                initials={initials}
+                onNewChat={onNewChat}
+                onNavigate={onNavigate}
+                onSelectConversation={handleConversationClick}
+                onSignOut={handleLogout}
+                navItems={navItems}
+                primaryKey={primaryKey}
+              />
             </aside>
           </div>
         )}
@@ -196,7 +251,20 @@ export default function Sidebar({
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <MobileSidebarContent activeView={activeView} onNewChat={onNewChat} onNavigate={onNavigate} navItems={navItems} primaryKey={primaryKey} />
+            <MobileSidebarContent
+              activeView={activeView}
+              activeConversationId={activeConversationId}
+              groups={groups}
+              displayName={displayName}
+              email={email}
+              initials={initials}
+              onNewChat={onNewChat}
+              onNavigate={onNavigate}
+              onSelectConversation={handleConversationClick}
+              onSignOut={handleLogout}
+              navItems={navItems}
+              primaryKey={primaryKey}
+            />
           </aside>
         </div>
       )}
@@ -270,9 +338,21 @@ export default function Sidebar({
 
       {/* Chat History */}
       <div className="flex-1 overflow-y-auto px-3 pt-3 space-y-4">
-        <ChatGroup label="Today" items={chatHistoryToday} onItemClick={handleHistoryClick} />
-        <ChatGroup label="Yesterday" items={chatHistoryYesterday} onItemClick={handleHistoryClick} />
-        <ChatGroup label="7 days" items={chatHistory7Days} onItemClick={handleHistoryClick} />
+        {groups.length === 0 ? (
+          <p className="px-3 text-[12px] text-text-muted">
+            No conversations yet. Start a new chat to see it here.
+          </p>
+        ) : (
+          groups.map((group) => (
+            <ConversationGroupView
+              key={group.label}
+              label={group.label}
+              items={group.items}
+              activeId={activeConversationId}
+              onItemClick={handleConversationClick}
+            />
+          ))
+        )}
       </div>
 
       {/* User Profile */}
@@ -283,14 +363,14 @@ export default function Sidebar({
             className="flex items-center gap-2.5 flex-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">
-              BN
+              {initials || "SA"}
             </div>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-[13px] font-medium text-text-primary truncate">
-                Bilguun Nyamlhagva
+                {displayName}
               </p>
               <p className="text-[11px] text-text-muted truncate">
-                bilguunint@gmail.com
+                {email}
               </p>
             </div>
           </button>
@@ -306,22 +386,33 @@ export default function Sidebar({
 
 function MobileSidebarContent({
   activeView,
+  activeConversationId,
+  groups,
+  displayName,
+  email,
+  initials,
   onNewChat,
   onNavigate,
+  onSelectConversation,
+  onSignOut,
   navItems,
   primaryKey: _primaryKey,
 }: {
   activeView: ActiveView;
+  activeConversationId: string | null;
+  groups: ConversationGroup[];
+  displayName: string;
+  email: string;
+  initials: string;
   onNewChat?: () => void;
   onNavigate?: (view: ActiveView) => void;
+  onSelectConversation: (id: string) => void;
+  onSignOut: () => void;
   navItems: { icon: React.ComponentType<{ className?: string }>; label: string; view: ActiveView }[];
   primaryKey: string;
 }) {
   const { toast } = useToast();
   const handleSearch = () => toast("Search", { description: "⌘K / Ctrl+K — full search coming soon" });
-  const handleLogout = () => toast("Signed out", { type: "success", description: "Demo only — no real auth" });
-  const handleHistoryClick = (item: string) =>
-    toast("Loading conversation", { description: item.length > 40 ? item.slice(0, 40) + "..." : item });
   return (
     <>
       <div className="px-3 pt-2 pb-1">
@@ -354,20 +445,32 @@ function MobileSidebarContent({
         })}
       </nav>
       <div className="flex-1 overflow-y-auto px-3 pt-3 space-y-4">
-        <ChatGroup label="Today" items={chatHistoryToday} onItemClick={handleHistoryClick} />
-        <ChatGroup label="Yesterday" items={chatHistoryYesterday} onItemClick={handleHistoryClick} />
-        <ChatGroup label="7 days" items={chatHistory7Days} onItemClick={handleHistoryClick} />
+        {groups.length === 0 ? (
+          <p className="px-3 text-[12px] text-text-muted">
+            No conversations yet.
+          </p>
+        ) : (
+          groups.map((group) => (
+            <ConversationGroupView
+              key={group.label}
+              label={group.label}
+              items={group.items}
+              activeId={activeConversationId}
+              onItemClick={onSelectConversation}
+            />
+          ))
+        )}
       </div>
       <div className="px-3 py-3 border-t border-border-light flex items-center gap-2">
         <button onClick={() => onNavigate?.("profile" as ActiveView)}
           className="flex items-center gap-2.5 flex-1 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">BN</div>
-          <div className="text-left">
-            <p className="text-[13px] font-medium text-text-primary">Bilguun Nyamlhagva</p>
-            <p className="text-[11px] text-text-muted">bilguunint@gmail.com</p>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white text-[11px] font-semibold shrink-0">{initials || "SA"}</div>
+          <div className="text-left min-w-0">
+            <p className="text-[13px] font-medium text-text-primary truncate">{displayName}</p>
+            <p className="text-[11px] text-text-muted truncate">{email}</p>
           </div>
         </button>
-        <button onClick={handleLogout} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
+        <button onClick={onSignOut} className="p-1 rounded-md hover:bg-sidebar-hover text-text-muted cursor-pointer" title="Sign out">
           <LogOut className="w-4 h-4" />
         </button>
       </div>
@@ -375,22 +478,38 @@ function MobileSidebarContent({
   );
 }
 
-function ChatGroup({ label, items, onItemClick }: { label: string; items: string[]; onItemClick?: (item: string) => void }) {
+function ConversationGroupView({
+  label,
+  items,
+  activeId,
+  onItemClick,
+}: {
+  label: string;
+  items: Conversation[];
+  activeId: string | null;
+  onItemClick: (id: string) => void;
+}) {
   return (
     <div>
-      <p className="text-[11px] font-medium text-text-muted px-3 pb-1">
-        {label}
-      </p>
+      <p className="text-[11px] font-medium text-text-muted px-3 pb-1">{label}</p>
       <div className="space-y-[1px]">
-        {items.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => onItemClick?.(item)}
-            className="w-full text-left px-3 py-[6px] rounded-lg text-[12.5px] text-text-secondary hover:bg-sidebar-hover transition-colors truncate cursor-pointer"
-          >
-            {item}
-          </button>
-        ))}
+        {items.map((c) => {
+          const isActive = c.id === activeId;
+          return (
+            <button
+              key={c.id}
+              onClick={() => onItemClick(c.id)}
+              title={c.title}
+              className={`w-full text-left px-3 py-[6px] rounded-lg text-[12.5px] transition-colors truncate cursor-pointer ${
+                isActive
+                  ? "bg-sidebar-active text-primary-600 font-medium"
+                  : "text-text-secondary hover:bg-sidebar-hover"
+              }`}
+            >
+              {c.title || "Untitled chat"}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

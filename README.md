@@ -253,6 +253,66 @@ Open <http://localhost:3000>, pick a model from the model dropdown above the cha
 
 Don't upload `.env.local`. Instead, add the relevant `*_API_KEY` values (and optionally `*_MODEL` overrides) as **Environment Variables** in your hosting provider's project settings, then redeploy.
 
+### 🔥 Firebase (auth + chat history)
+
+The demo uses **the user's own Firebase project** for sign-in and to persist chat history. Nothing is stored on Sondor's servers — your Firebase config and access tokens stay in the visitor's browser.
+
+#### 1. Create a Firebase project
+
+1. Go to [console.firebase.google.com](https://console.firebase.google.com/) → **Add project**.
+2. Inside the project, click the **`</>`** (Web) icon to register a web app. Copy the generated `firebaseConfig` snippet — you'll paste it into the in-app Setup Wizard.
+3. **Authentication** → **Get started** → enable the **Google** sign-in provider.
+4. **Firestore Database** → **Create database** → start in **production mode** (we'll lock it down with rules below).
+5. **Authentication** → **Settings** → **Authorized domains** → add `localhost` (already there) and your deployed domain (e.g. `your-app.vercel.app`).
+
+#### 2. Paste the config in the Setup Wizard
+
+Run `pnpm dev`, open `http://localhost:3000`, and the **Setup Wizard** will appear. Paste the entire `firebaseConfig` object (or fill the fields one by one), click **Connect**, then sign in with Google.
+
+The config is saved to `localStorage` only — it never leaves the browser.
+
+#### 3. Firestore security rules
+
+Open **Firestore Database** → **Rules** in the Firebase console and replace the contents with:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Each user can only read/write under their own /users/{uid} subtree.
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
+Click **Publish**. Without this rule conversations will fail to save (or worse — be readable by other users in test mode).
+
+#### 4. Data model
+
+Conversations and messages are stored as:
+
+```
+users/{uid}/conversations/{conversationId}
+  title, lastMessage, messageCount, starred, model, createdAt, updatedAt
+
+users/{uid}/conversations/{conversationId}/messages/{messageId}
+  role, content, responseType, thinkingTime, createdAt
+```
+
+Subscriptions use `onSnapshot` so chat history updates in real time across tabs.
+
+#### Troubleshooting Firebase
+
+| Symptom | Likely cause / fix |
+|---|---|
+| Setup Wizard says "Invalid config" | Make sure you pasted the *whole* `firebaseConfig` object, including `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, and `appId`. |
+| Google popup is blocked | Allow popups for `localhost:3000` (or your domain) in the browser. |
+| `auth/unauthorized-domain` | Add the current host to Firebase **Authentication → Settings → Authorized domains**. |
+| `Missing or insufficient permissions` when sending a message | Firestore rules weren't published. Re-check **step 3** and click **Publish**. |
+| Want to reconnect a different project | Sign-in screen → **Use a different Firebase project**, or clear the `sondor.firebase-config.v1` key from localStorage. |
+
 ## Available Scripts
 
 | Command | Description |

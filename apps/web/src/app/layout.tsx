@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { ToastProvider } from "@/contexts/ToastProvider";
+import { FirebaseProvider } from "@/contexts/FirebaseProvider";
+import { ChatStoreProvider } from "@/contexts/ChatStoreProvider";
+import AuthGate from "@/components/AuthGate";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -23,7 +26,13 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="h-screen overflow-hidden">
         <ThemeProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <FirebaseProvider>
+              <AuthGate>
+                <ChatStoreProvider>{children}</ChatStoreProvider>
+              </AuthGate>
+            </FirebaseProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

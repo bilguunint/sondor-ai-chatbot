@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   ChevronDown,
   MoreHorizontal,
@@ -27,14 +27,22 @@ import {
 
 import { useTheme } from "@/contexts/ThemeProvider";
 import { useToast } from "@/contexts/ToastProvider";
+import { useChatStore } from "@/contexts/ChatStoreProvider";
 import type { ResponseType, ChatMessage } from "@/types";
 import { aiModels, researchOptions, suggestions, getMockResponse, getMockTypedResponse } from "@/lib/mockData";
 import { UserBubble, AssistantBubble, CodeBubble, FileBubble, AudioBubble, ImageBubble } from "./components/bubbles";
 import PricingModal from "./components/PricingModal";
 
 export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
-  const [view, setView] = useState<"home" | "chat">("home");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const {
+    activeConversationId,
+    activeMessages,
+    setActiveConversation,
+    createConversation,
+    appendMessage,
+  } = useChatStore();
+
+  const [view, setView] = useState<"home" | "chat">(activeConversationId ? "chat" : "home");
   const [inputValue, setInputValue] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -54,6 +62,27 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
   const inputRef = useRef<HTMLInputElement>(null);
   const modelDropdownRef = useRef<HTMLDivElement>(null);
   const researchDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Messages displayed in the UI come from the live Firestore subscription.
+  const messages = useMemo<ChatMessage[]>(
+    () =>
+      activeMessages.map((m) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        thinkingTime: m.thinkingTime,
+        responseType: m.responseType,
+      })),
+    [activeMessages],
+  );
+
+  // Keep the view in sync with the active conversation. Skip while a
+  // home→chat transition animation is running so we don't fight it.
+  useEffect(() => {
+    if (isTransitioning) return;
+    if (activeConversationId && view !== "chat") setView("chat");
+    else if (!activeConversationId && view === "chat") setView("home");
+  }, [activeConversationId, isTransitioning, view]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -84,7 +113,12 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
   }, [showResearchDropdown]);
 
   const simulateResponse = useCallback(
-    (userMsg: string, type: ResponseType = "default") => {
+    (
+      userMsg: string,
+      type: ResponseType,
+      conversationId: string,
+      historyForApi: { role: "user" | "assistant"; content: string }[],
+    ) => {
       setActiveResponseType(type);
       setIsThinking(true);
       setThinkingSeconds(0);
@@ -100,25 +134,20 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
         setTimeout(() => {
           clearInterval(thinkInterval);
           setIsThinking(false);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              role: "assistant",
-              content: response,
-              thinkingTime: thinkTime,
-              responseType: type,
-            },
-          ]);
+          appendMessage(conversationId, {
+            role: "assistant",
+            content: response,
+            thinkingTime: thinkTime,
+            responseType: type,
+          }).catch((err) =>
+            toast("Failed to save reply", {
+              type: "warning",
+              description: err instanceof Error ? err.message : String(err),
+            }),
+          );
         }, thinkTime * 1000);
         return;
       }
-
-      // Build conversation history for the API (current user message included).
-      const history = [
-        ...messages.map((m) => ({ role: m.role, content: m.content })),
-        { role: "user" as const, content: userMsg },
-      ];
 
       let cancelled = false;
 
@@ -128,7 +157,7 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              messages: history,
+              messages: historyForApi,
               provider: selectedModel.provider,
               model: selectedModel.model,
             }),
@@ -160,16 +189,12 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
           const thinkTime = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
           setIsTyping(false);
           setTypingText("");
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              role: "assistant",
-              content: acc || getMockResponse(userMsg),
-              thinkingTime: thinkTime,
-              responseType: "default",
-            },
-          ]);
+          await appendMessage(conversationId, {
+            role: "assistant",
+            content: acc || getMockResponse(userMsg),
+            thinkingTime: thinkTime,
+            responseType: "default",
+          });
         } catch (err) {
           clearInterval(thinkInterval);
           setIsThinking(false);
@@ -178,16 +203,12 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
           const message =
             err instanceof Error ? err.message : "Unknown error contacting AI service";
           toast("AI request failed", { type: "warning", description: message });
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              role: "assistant",
-              content: `⚠️ ${message}`,
-              thinkingTime: 0,
-              responseType: "default",
-            },
-          ]);
+          appendMessage(conversationId, {
+            role: "assistant",
+            content: `⚠️ ${message}`,
+            thinkingTime: 0,
+            responseType: "default",
+          }).catch(() => undefined);
         }
       })();
 
@@ -196,34 +217,74 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
         clearInterval(thinkInterval);
       };
     },
-    [messages, toast, selectedModel],
+    [appendMessage, toast, selectedModel],
+  );
+
+  /**
+   * Persist the user's message and kick off a model response. Creates a
+   * brand-new conversation if there isn't one active yet.
+   */
+  const submitUserMessage = useCallback(
+    async (text: string, type: ResponseType) => {
+      const modelMeta = { provider: selectedModel.provider, model: selectedModel.model };
+      let convId = activeConversationId;
+      if (!convId) {
+        convId = await createConversation(text, modelMeta);
+        if (!convId) {
+          toast("Sign in required", { type: "warning", description: "Connect Firebase to start chatting." });
+          return;
+        }
+        setActiveConversation(convId);
+      }
+
+      // Build the history snapshot BEFORE Firestore round-trips so we don't
+      // race onSnapshot for the user's just-typed message.
+      const history = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        { role: "user" as const, content: text },
+      ];
+
+      try {
+        await appendMessage(convId, { role: "user", content: text });
+      } catch (err) {
+        toast("Failed to save message", {
+          type: "warning",
+          description: err instanceof Error ? err.message : String(err),
+        });
+        return;
+      }
+
+      simulateResponse(text, type, convId, history);
+    },
+    [
+      activeConversationId,
+      appendMessage,
+      createConversation,
+      messages,
+      selectedModel,
+      setActiveConversation,
+      simulateResponse,
+      toast,
+    ],
   );
 
   const handleSend = useCallback(() => {
     const text = inputValue.trim();
     if (!text) return;
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: "user",
-      content: text,
-    };
-
     if (view === "home") {
       setIsTransitioning(true);
+      setInputValue("");
       setTimeout(() => {
         setView("chat");
-        setMessages([userMessage]);
-        setInputValue("");
         setIsTransitioning(false);
-        simulateResponse(text, responseType);
+        void submitUserMessage(text, responseType);
       }, 400);
     } else {
-      setMessages((prev) => [...prev, userMessage]);
       setInputValue("");
-      simulateResponse(text, responseType);
+      void submitUserMessage(text, responseType);
     }
-  }, [inputValue, view, simulateResponse, responseType]);
+  }, [inputValue, view, submitUserMessage, responseType]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -235,18 +296,12 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
   const handleSuggestionClick = (text: string) => {
     setInputValue(text);
     setTimeout(() => {
-      const userMessage: ChatMessage = {
-        id: Date.now().toString(),
-        role: "user",
-        content: text,
-      };
       setIsTransitioning(true);
+      setInputValue("");
       setTimeout(() => {
         setView("chat");
-        setMessages([userMessage]);
-        setInputValue("");
         setIsTransitioning(false);
-        simulateResponse(text, responseType);
+        void submitUserMessage(text, responseType);
       }, 400);
     }, 100);
   };

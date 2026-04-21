@@ -12,6 +12,88 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeProvider";
 
+function ThemePresetSection() {
+  const { preset, setPreset, presets } = useTheme();
+
+  return (
+    <section>
+      <h2 className="text-[15px] font-semibold text-text-primary mb-1">
+        Theme Preset
+      </h2>
+      <p className="text-[13px] text-text-muted mb-4">
+        Switch the entire look &amp; feel of the interface
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {presets.map((p) => {
+          const active = preset === p.key;
+          const isZyricon = p.key === "zyricon";
+          return (
+            <button
+              key={p.key}
+              onClick={() => setPreset(p.key)}
+              className={`relative flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer text-left ${
+                active
+                  ? "border-primary-500 bg-primary-500/10 shadow-sm"
+                  : "border-border-light hover:border-primary-300 bg-card hover:bg-card-hover"
+              }`}
+            >
+              {active && (
+                <div className="absolute top-3 right-3 z-10 w-5 h-5 rounded-full bg-primary-500 ring-2 ring-white/80 dark:ring-black/40 shadow-md flex items-center justify-center">
+                  <Check className="w-3 h-3 text-white" />
+                </div>
+              )}
+              {/* Preview tile */}
+              <div
+                className="relative w-full h-24 rounded-xl overflow-hidden border border-border-light"
+                style={
+                  isZyricon
+                    ? {
+                        background:
+                          "radial-gradient(ellipse 90% 70% at 50% -10%, rgba(168,85,247,0.7) 0%, rgba(168,85,247,0) 60%), radial-gradient(ellipse 70% 60% at 100% 110%, rgba(99,47,200,0.55) 0%, rgba(99,47,200,0) 60%), linear-gradient(180deg, #150826 0%, #0a0612 100%)",
+                      }
+                    : {
+                        background:
+                          "linear-gradient(135deg, #f8f5ff 0%, #ffffff 50%, #ede5ff 100%)",
+                      }
+                }
+              >
+                {isZyricon ? (
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full"
+                    style={{
+                      background:
+                        "radial-gradient(circle at 35% 30%, #f0c8ff 0%, #a855f7 45%, #5b21b6 100%)",
+                      boxShadow:
+                        "0 0 24px 6px rgba(168,85,247,0.55), inset -4px -6px 12px rgba(20,0,40,0.6)",
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-3 rounded-lg bg-white border border-[#e8e0f0] flex flex-col gap-1 p-2">
+                    <div className="h-1.5 w-1/2 rounded bg-[#e8dff5]" />
+                    <div className="h-1.5 w-2/3 rounded bg-[#ede5ff]" />
+                    <div className="h-2 w-1/3 rounded bg-primary-500 mt-auto" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <div
+                  className={`text-[14px] font-semibold mb-0.5 ${
+                    active ? "text-primary-600" : "text-text-primary"
+                  }`}
+                >
+                  {p.name}
+                </div>
+                <div className="text-[11.5px] text-text-muted leading-snug">
+                  {p.description}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function ThemeContent({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const { mode, setMode, resolvedMode, primaryKey, setPrimaryKey, primary, colors } =
     useTheme();
@@ -38,6 +120,9 @@ export default function ThemeContent({ onMobileMenuOpen }: { onMobileMenuOpen?: 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 md:px-8 py-8">
         <div className="max-w-[720px] mx-auto space-y-10">
+          {/* Theme Preset */}
+          <ThemePresetSection />
+
           {/* Appearance Mode */}
           <section>
             <h2 className="text-[15px] font-semibold text-text-primary mb-1">
@@ -77,7 +162,7 @@ export default function ThemeContent({ onMobileMenuOpen }: { onMobileMenuOpen?: 
                   }`}
                 >
                   {mode === key && (
-                    <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center">
+                    <div className="absolute top-3 right-3 z-10 w-5 h-5 rounded-full bg-primary-500 ring-2 ring-white/80 dark:ring-black/40 shadow-md flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
                     </div>
                   )}

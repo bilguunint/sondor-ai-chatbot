@@ -10,18 +10,19 @@ import HistoryContent from "@/features/history";
 import WidgetsContent from "@/features/widgets";
 import ThemeContent from "@/features/theme";
 import ProfileContent from "@/features/profile";
+import { useChatStore } from "@/contexts/ChatStoreProvider";
 import type { ActiveView } from "@/types";
 
 export type { ActiveView };
 
 export default function Home() {
-  const [chatKey, setChatKey] = useState(0);
   const [activeView, setActiveView] = useState<ActiveView>("home");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { startNewChat, setActiveConversation } = useChatStore();
 
   const handleNewChat = () => {
-    setChatKey((k) => k + 1);
+    startNewChat();
     setActiveView("home");
     setMobileSidebarOpen(false);
   };
@@ -31,12 +32,19 @@ export default function Home() {
     setMobileSidebarOpen(false);
   };
 
+  const handleSelectConversation = (id: string) => {
+    setActiveConversation(id);
+    setActiveView("home");
+    setMobileSidebarOpen(false);
+  };
+
   return (
     <div className="flex h-screen">
       <Sidebar
         activeView={activeView}
         onNewChat={handleNewChat}
         onNavigate={handleNavigate}
+        onSelectConversation={handleSelectConversation}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         mobileOpen={mobileSidebarOpen}
@@ -49,7 +57,10 @@ export default function Home() {
       ) : activeView === "files" ? (
         <FilesContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "history" ? (
-        <HistoryContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
+        <HistoryContent
+          onMobileMenuOpen={() => setMobileSidebarOpen(true)}
+          onOpenConversation={handleSelectConversation}
+        />
       ) : activeView === "widgets" ? (
         <WidgetsContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : activeView === "theme" ? (
@@ -57,7 +68,7 @@ export default function Home() {
       ) : activeView === "profile" ? (
         <ProfileContent onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       ) : (
-        <ChatView key={chatKey} onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
+        <ChatView onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
       )}
     </div>
   );

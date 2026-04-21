@@ -50,6 +50,92 @@
   --color-text-muted: #6b7294;
 }
 
+/* ===========================================================
+   Preset: Zyricon — cosmic violet gradient + glassmorphism
+   Activated when <html data-theme="zyricon"> is set.
+   The preset always runs in dark mode (forced by ThemeProvider).
+   =========================================================== */
+html[data-theme="zyricon"] {
+  /* Make every "background" surface transparent so the cosmic
+     gradient on <html> shows through, then layer translucent
+     glass surfaces on top via the *-hover / card / sidebar vars. */
+  --color-background: transparent;
+  --color-foreground: #ece6ff;
+  --color-card: rgba(30, 18, 60, 0.45);
+  --color-card-hover: rgba(50, 30, 95, 0.55);
+  --color-input-bg: rgba(20, 12, 42, 0.55);
+  --color-hover-bg: rgba(80, 50, 140, 0.28);
+  --color-sidebar: rgba(18, 10, 38, 0.45);
+  --color-sidebar-hover: rgba(80, 50, 140, 0.28);
+  --color-sidebar-active: rgba(168, 85, 247, 0.22);
+  --color-border-light: rgba(180, 140, 255, 0.16);
+  --color-text-primary: #ece6ff;
+  --color-text-secondary: #c4b8ea;
+  --color-text-muted: #948aba;
+  --color-primary-50: #f5f0ff;
+  --color-primary-100: #ede5ff;
+  --color-primary-200: #d4c4f7;
+  --color-primary-300: #b89df0;
+  --color-primary-400: #b478ff;
+  --color-primary-500: #a855f7;
+  --color-primary-600: #8b3fe0;
+  --color-primary-700: #6d28d9;
+}
+
+/* The cosmic gradient lives on <html> itself so every transparent
+   surface (background / card / sidebar) reveals it. */
+html[data-theme="zyricon"],
+html[data-theme="zyricon"] body {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -10%, rgba(168, 85, 247, 0.55) 0%, rgba(168, 85, 247, 0) 65%),
+    radial-gradient(ellipse 70% 55% at 110% 110%, rgba(120, 50, 220, 0.5) 0%, rgba(120, 50, 220, 0) 60%),
+    radial-gradient(ellipse 60% 45% at -10% 100%, rgba(70, 20, 160, 0.45) 0%, rgba(70, 20, 160, 0) 60%),
+    linear-gradient(180deg, #1a0a32 0%, #0a0612 55%, #050309 100%);
+  background-attachment: fixed;
+}
+
+html[data-theme="zyricon"] body {
+  /* Avoid double painting — keep <html> as the only painted layer */
+  background: transparent;
+}
+
+/* Glass effect on every translucent surface. We can't selector-match
+   Tailwind utilities by name reliably, so we apply backdrop-filter to
+   any element whose computed background uses the card / sidebar tokens
+   via direct Tailwind class names produced by @theme. */
+html[data-theme="zyricon"] .bg-card,
+html[data-theme="zyricon"] .bg-card-hover,
+html[data-theme="zyricon"] .bg-input-bg,
+html[data-theme="zyricon"] .bg-sidebar,
+html[data-theme="zyricon"] .bg-sidebar-hover,
+html[data-theme="zyricon"] .bg-sidebar-active,
+html[data-theme="zyricon"] .bg-hover-bg {
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(180, 140, 255, 0.12);
+}
+
+/* Primary buttons get an outer violet glow */
+html[data-theme="zyricon"] .bg-primary-500 {
+  box-shadow:
+    0 8px 28px -6px rgba(168, 85, 247, 0.6),
+    0 0 0 1px rgba(168, 85, 247, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Borders pick up a subtle violet glow */
+html[data-theme="zyricon"] .border-border-light {
+  border-color: rgba(180, 140, 255, 0.16);
+}
+
+/* Custom scrollbar in cosmic mode */
+html[data-theme="zyricon"] ::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.4);
+}
+html[data-theme="zyricon"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.6);
+}
+
 body {
   background: var(--color-background);
   color: var(--color-text-primary);

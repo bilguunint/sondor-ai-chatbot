@@ -3,6 +3,32 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 type Mode = "light" | "dark" | "system";
+export type ThemePreset = "default" | "zyricon";
+
+interface PresetMeta {
+  key: ThemePreset;
+  name: string;
+  description: string;
+  /** When set, switching to this preset forces the resolved mode. */
+  forceMode?: "light" | "dark";
+  /** When set, switching to this preset forces the primary color key. */
+  forcePrimary?: string;
+}
+
+export const themePresets: PresetMeta[] = [
+  {
+    key: "default",
+    name: "Default",
+    description: "Standard Sondor look — works with every accent color and mode.",
+  },
+  {
+    key: "zyricon",
+    name: "Zyricon",
+    description: "Cosmic violet gradient with glassmorphism and glowing accents.",
+    forceMode: "dark",
+    forcePrimary: "purple",
+  },
+];
 
 interface PrimaryColor {
   name: string;
@@ -67,6 +93,9 @@ interface ThemeContextType {
   setPrimaryKey: (key: string) => void;
   primary: PrimaryColor;
   colors: typeof primaryColors;
+  preset: ThemePreset;
+  setPreset: (p: ThemePreset) => void;
+  presets: PresetMeta[];
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -81,15 +110,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setModeState] = useState<Mode>("light");
   const [primaryKey, setPrimaryKeyState] = useState("purple");
   const [resolvedMode, setResolvedMode] = useState<"light" | "dark">("light");
+  const [preset, setPresetState] = useState<ThemePreset>("default");
 
   useEffect(() => {
     const savedMode = localStorage.getItem("theme-mode") as Mode | null;
     const savedColor = localStorage.getItem("theme-primary");
+    const savedPreset = localStorage.getItem("theme-preset") as ThemePreset | null;
     if (savedMode) setModeState(savedMode);
     if (savedColor && primaryColors[savedColor]) setPrimaryKeyState(savedColor);
+    if (savedPreset && themePresets.some((p) => p.key === savedPreset)) {
+      setPresetState(savedPreset);
+    }
   }, []);
 
   useEffect(() => {
+    const meta = themePresets.find((p) => p.key === preset);
+    if (meta?.forceMode) {
+      setResolvedMode(meta.forceMode);
+      return;
+    }
     const resolve = () => {
       if (mode === "system") {
         const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -102,7 +141,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
     mql.addEventListener("change", resolve);
     return () => mql.removeEventListener("change", resolve);
-  }, [mode]);
+  }, [mode, preset]);
+
+  useEffect(() => {
+    if (preset === "default") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", preset);
+    }
+  }, [preset]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolvedMode === "dark");
@@ -144,6 +191,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("theme-primary", key);
   }, []);
 
+  const setPreset = useCallback((p: ThemePreset) => {
+    setPresetState(p);
+    localStorage.setItem("theme-preset", p);
+    const meta = themePresets.find((m) => m.key === p);
+    if (meta?.forcePrimary && primaryColors[meta.forcePrimary]) {
+      setPrimaryKeyState(meta.forcePrimary);
+      localStorage.setItem("theme-primary", meta.forcePrimary);
+    }
+  }, []);
+
   return (
     <ThemeContext.Provider
       value={{
@@ -154,6 +211,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setPrimaryKey,
         primary: primaryColors[primaryKey] ?? primaryColors.purple,
         colors: primaryColors,
+        preset,
+        setPreset,
+        presets: themePresets,
       }}
     >
       {children}
