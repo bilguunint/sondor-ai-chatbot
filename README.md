@@ -57,14 +57,9 @@ Everything runs on your infrastructure. No vendor lock-in, no telemetry, no hidd
 
 <div align="center">
 <table>
-<tr>
-<td><img src="apps/web/public/assets/home-screen.png" width="350" alt="Home"></td>
-<td><img src="apps/web/public/assets/explore-screen.png" width="350" alt="Explore"></td>
-</tr>
-<tr>
-<td><img src="apps/web/public/assets/widgets-screen.png" width="350" alt="Widgets"></td>
-<td><img src="apps/web/public/assets/response-types.png" width="350" alt="Response types"></td>
-</tr>
+<tr><td align="center"><img src="apps/web/public/assets/explore-screen.png" width="780" alt="Explore"><br><sub><b>Explore</b></sub></td></tr>
+<tr><td align="center"><img src="apps/web/public/assets/widgets-screen.png" width="780" alt="Widgets"><br><sub><b>Widgets</b></sub></td></tr>
+<tr><td align="center"><img src="apps/web/public/assets/response-types.png" width="780" alt="Response types"><br><sub><b>Response types</b></sub></td></tr>
 </table>
 </div>
 
