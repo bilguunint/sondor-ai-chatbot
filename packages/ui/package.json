@@ -19,14 +19,14 @@
     "url": "https://github.com/bilguunint"
   },
   "license": "MIT",
-  "homepage": "https://github.com/bilguunint/chatbot-uikit#readme",
+  "homepage": "https://github.com/bilguunint/sondor-ai-chatbot#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bilguunint/chatbot-uikit.git",
+    "url": "git+https://github.com/bilguunint/sondor-ai-chatbot.git",
     "directory": "packages/ui"
   },
   "bugs": {
-    "url": "https://github.com/bilguunint/chatbot-uikit/issues"
+    "url": "https://github.com/bilguunint/sondor-ai-chatbot/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",

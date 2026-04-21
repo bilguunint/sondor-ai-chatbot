@@ -17,7 +17,7 @@
   <br><br>
 
   <p>
-    <a href="https://chatbot-uikit.vercel.app/"><strong>🔴 Live demo</strong></a>
+    <a href="https://sondor-ai-chatbot.vercel.app/"><strong>🔴 Live demo</strong></a>
     &nbsp;·&nbsp;
     <a href="#-quick-start">Quick start</a>
     &nbsp;·&nbsp;
@@ -62,8 +62,8 @@ Everything runs on your infrastructure. No vendor lock-in, no telemetry, no hidd
 ## 🚀 Quick start
 
 ```bash
-git clone https://github.com/bilguunint/chatbot-uikit.git
-cd chatbot-uikit
+git clone https://github.com/bilguunint/sondor-ai-chatbot.git
+cd sondor-ai-chatbot
 pnpm install
 pnpm dev
 ```

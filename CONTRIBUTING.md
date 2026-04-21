@@ -39,8 +39,8 @@ unacceptable behavior to the maintainers.
 
 ```bash
 # 1. Fork the repository, then clone your fork
-git clone https://github.com/<your-username>/chatbot-uikit.git
-cd chatbot-uikit
+git clone https://github.com/<your-username>/sondor-ai-chatbot.git
+cd sondor-ai-chatbot
 
 # 2. Install dependencies
 npm install
@@ -198,8 +198,8 @@ Thank you for your interest in contributing! Here's how you can help.
 1. **Fork** the repository
 2. **Clone** your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/chatbot-uikit.git
-   cd chatbot-uikit
+   git clone https://github.com/YOUR_USERNAME/sondor-ai-chatbot.git
+   cd sondor-ai-chatbot
    ```
 3. **Install dependencies:**
    ```bash
@@ -241,7 +241,7 @@ src/
 
 ### Reporting Bugs
 
-Open an [issue](https://github.com/bilguunint/chatbot-uikit/issues) with:
+Open an [issue](https://github.com/bilguunint/sondor-ai-chatbot/issues) with:
 - A clear description of the bug
 - Steps to reproduce
 - Expected vs actual behavior

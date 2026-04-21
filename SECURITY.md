@@ -10,7 +10,7 @@ If you discover a security vulnerability, **please do not open a public issue**.
 
 Instead, report it privately by:
 
-1. Opening a [GitHub Security Advisory](https://github.com/bilguunint/chatbot-uikit/security/advisories/new), or
+1. Opening a [GitHub Security Advisory](https://github.com/bilguunint/sondor-ai-chatbot/security/advisories/new), or
 2. Emailing the maintainer directly.
 
 Please include:

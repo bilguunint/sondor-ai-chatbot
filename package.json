@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bilguunint/chatbot-uikit.git"
+    "url": "git+https://github.com/bilguunint/sondor-ai-chatbot.git"
   },
   "scripts": {
     "dev": "pnpm --filter @sondor/web dev",
