@@ -413,7 +413,7 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
   };
 
   return (
-    <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
+    <main className="flex-1 flex flex-col h-screen min-h-0 bg-background overflow-hidden">
       {/* Top Bar */}
       <header className="flex items-center justify-between px-4 md:px-6 py-3 shrink-0 relative z-10">
         <div className="flex items-center gap-2">
@@ -491,12 +491,13 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
       {/* ====== HOME VIEW ====== */}
       {view === "home" && (
         <div
-          className={`flex-1 flex flex-col items-center justify-center px-4 sm:px-6 -mt-4 sm:-mt-8 transition-all duration-400 ${
+          className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden transition-all duration-400 ${
             isTransitioning
               ? "opacity-0 translate-y-8 scale-95"
               : "opacity-100 translate-y-0 scale-100"
           }`}
         >
+          <div className="min-h-full flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-8">
           {/* Avatar / Orb */}
           <div className="relative mb-6">
             <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-200 via-primary-300 to-primary-400 opacity-60 blur-sm absolute inset-0" />
@@ -626,6 +627,7 @@ export default function ChatView({ onMobileMenuOpen }: { onMobileMenuOpen?: () =
                 </p>
               </button>
             ))}
+          </div>
           </div>
         </div>
       )}
